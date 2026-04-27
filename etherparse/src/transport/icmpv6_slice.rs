@@ -207,6 +207,21 @@ impl<'a> Icmpv6Slice<'a> {
     pub fn payload_slice(&self) -> Result<icmpv6::Icmpv6PayloadSlice<'a>, err::LenError> {
         icmpv6::Icmpv6PayloadSlice::from_type_u8(self.type_u8(), self.code_u8(), self.payload())
     }
+
+    /// Returns true if this ICMPv6 message is a Multicast Listener Discovery message.
+    #[inline]
+    pub fn is_mld(&self) -> bool {
+        icmpv6::MldSlice::is_mld_type_u8(self.type_u8())
+    }
+
+    /// Returns the structured Multicast Listener Discovery message.
+    ///
+    /// Use [`Icmpv6Slice::is_mld`] to check the ICMPv6 type before calling this
+    /// method if non-MLD input should be handled separately.
+    #[inline]
+    pub fn mld_slice(&self) -> Result<icmpv6::MldSlice<'a>, icmpv6::MldSliceError> {
+        icmpv6::MldSlice::from_icmpv6_slice(self)
+    }
 }
 
 #[cfg(test)]

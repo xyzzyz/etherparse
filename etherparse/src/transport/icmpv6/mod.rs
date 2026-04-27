@@ -33,6 +33,9 @@ pub use icmpv6_payload::*;
 mod icmpv6_payload_slice;
 pub use icmpv6_payload_slice::*;
 
+mod mld;
+pub use mld::*;
+
 mod router_advertisement_header;
 pub use router_advertisement_header::*;
 
@@ -78,6 +81,9 @@ pub const TYPE_MULTICAST_LISTENER_REPORT: u8 = 131;
 /// ICMPv6 type value indicating a "Multicast Listener Done" message.
 pub const TYPE_MULTICAST_LISTENER_REDUCTION: u8 = 132;
 
+/// ICMPv6 type value indicating a "Multicast Listener Done" message.
+pub const TYPE_MULTICAST_LISTENER_DONE: u8 = TYPE_MULTICAST_LISTENER_REDUCTION;
+
 /// ICMPv6 type value indicating a "Router Solicitation" message.
 pub const TYPE_ROUTER_SOLICITATION: u8 = 133;
 
@@ -101,6 +107,9 @@ pub const TYPE_INVERSE_NEIGHBOR_DISCOVERY_SOLICITATION: u8 = 141;
 
 /// ICMPv6 type value indicating a "Inverse Neighbor Discovery Advertisement" message.
 pub const TYPE_INVERSE_NEIGHBOR_DISCOVERY_ADVERTISEMENT: u8 = 142;
+
+/// ICMPv6 type value indicating a "Version 2 Multicast Listener Report" message.
+pub const TYPE_MULTICAST_LISTENER_REPORT_V2: u8 = 143;
 
 /// ICMPv6 type value indicating a "Extended Echo Request" message.
 pub const TYPE_EXT_ECHO_REQUEST: u8 = 160;
@@ -186,6 +195,7 @@ mod test {
         assert_eq!(130, TYPE_MULTICAST_LISTENER_QUERY);
         assert_eq!(131, TYPE_MULTICAST_LISTENER_REPORT);
         assert_eq!(132, TYPE_MULTICAST_LISTENER_REDUCTION);
+        assert_eq!(132, TYPE_MULTICAST_LISTENER_DONE);
         assert_eq!(133, TYPE_ROUTER_SOLICITATION);
         assert_eq!(134, TYPE_ROUTER_ADVERTISEMENT);
         assert_eq!(135, TYPE_NEIGHBOR_SOLICITATION);
@@ -194,6 +204,7 @@ mod test {
         assert_eq!(138, TYPE_ROUTER_RENUMBERING);
         assert_eq!(141, TYPE_INVERSE_NEIGHBOR_DISCOVERY_SOLICITATION);
         assert_eq!(142, TYPE_INVERSE_NEIGHBOR_DISCOVERY_ADVERTISEMENT);
+        assert_eq!(143, TYPE_MULTICAST_LISTENER_REPORT_V2);
         assert_eq!(160, TYPE_EXT_ECHO_REQUEST);
         assert_eq!(161, TYPE_EXT_ECHO_REPLY);
 

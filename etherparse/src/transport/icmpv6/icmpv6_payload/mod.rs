@@ -30,7 +30,8 @@ pub enum Icmpv6Payload {
 }
 
 impl Icmpv6Payload {
-    /// Returns the serialized payload length in bytes.
+    /// Returns the serialized length of the payload bytes represented by this
+    /// owned value.
     pub fn len(&self) -> usize {
         use Icmpv6Payload::*;
         match self {
@@ -48,7 +49,10 @@ impl Icmpv6Payload {
         0 == self.len()
     }
 
-    /// Write the fixed payload bytes to the writer.
+    /// Write the payload bytes represented by this owned value to the writer.
+    ///
+    /// Variable trailing bytes not stored in the owned value must be written
+    /// separately by the caller.
     #[cfg(feature = "std")]
     #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
     pub fn write<T: std::io::Write + Sized>(&self, writer: &mut T) -> Result<(), std::io::Error> {

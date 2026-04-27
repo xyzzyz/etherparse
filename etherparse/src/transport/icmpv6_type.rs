@@ -584,6 +584,87 @@ impl Icmpv6Type {
         }
     }
 
+    /// Returns the ICMPv6 type representation for an MLD Multicast Listener
+    /// Query message.
+    ///
+    /// The value is the MLDv1 Maximum Response Delay or the MLDv2 Maximum
+    /// Response Code, depending on the query payload version.
+    #[inline]
+    pub const fn multicast_listener_query(maximum_response_code: u16) -> Icmpv6Type {
+        let maximum_response_code = maximum_response_code.to_be_bytes();
+
+        Icmpv6Type::Unknown {
+            type_u8: crate::icmpv6::TYPE_MULTICAST_LISTENER_QUERY,
+            code_u8: 0,
+            bytes5to8: [maximum_response_code[0], maximum_response_code[1], 0, 0],
+        }
+    }
+
+    /// Returns the ICMPv6 type representation for an MLDv1 Multicast Listener
+    /// Report message.
+    #[inline]
+    pub const fn multicast_listener_report_v1() -> Icmpv6Type {
+        Icmpv6Type::Unknown {
+            type_u8: crate::icmpv6::TYPE_MULTICAST_LISTENER_REPORT,
+            code_u8: 0,
+            bytes5to8: [0; 4],
+        }
+    }
+
+    /// Returns the ICMPv6 type representation for an MLDv1 Multicast Listener
+    /// Done message.
+    #[inline]
+    pub const fn multicast_listener_done_v1() -> Icmpv6Type {
+        Icmpv6Type::Unknown {
+            type_u8: crate::icmpv6::TYPE_MULTICAST_LISTENER_DONE,
+            code_u8: 0,
+            bytes5to8: [0; 4],
+        }
+    }
+
+    /// Returns the ICMPv6 type representation for an MLDv2 Multicast Listener
+    /// Report message.
+    #[inline]
+    pub const fn multicast_listener_report_v2(
+        number_of_multicast_address_records: u16,
+    ) -> Icmpv6Type {
+        let number_of_records = number_of_multicast_address_records.to_be_bytes();
+
+        Icmpv6Type::Unknown {
+            type_u8: crate::icmpv6::TYPE_MULTICAST_LISTENER_REPORT_V2,
+            code_u8: 0,
+            bytes5to8: [0, 0, number_of_records[0], number_of_records[1]],
+        }
+    }
+
+    /// Returns the MLD Maximum Response Delay/Code if this is an MLD Query
+    /// type representation.
+    #[inline]
+    pub const fn mld_query_maximum_response_code(&self) -> Option<u16> {
+        match self {
+            Icmpv6Type::Unknown {
+                type_u8: crate::icmpv6::TYPE_MULTICAST_LISTENER_QUERY,
+                code_u8: 0,
+                bytes5to8,
+            } => Some(u16::from_be_bytes([bytes5to8[0], bytes5to8[1]])),
+            _ => None,
+        }
+    }
+
+    /// Returns the MLDv2 report multicast-address-record count if this is an
+    /// MLDv2 Report type representation.
+    #[inline]
+    pub const fn mldv2_report_number_of_multicast_address_records(&self) -> Option<u16> {
+        match self {
+            Icmpv6Type::Unknown {
+                type_u8: crate::icmpv6::TYPE_MULTICAST_LISTENER_REPORT_V2,
+                code_u8: 0,
+                bytes5to8,
+            } => Some(u16::from_be_bytes([bytes5to8[2], bytes5to8[3]])),
+            _ => None,
+        }
+    }
+
     /// Calculates the checksum of the ICMPv6 header.
     ///
     /// <p style="background:rgba(255,181,77,0.16);padding:0.75em;">
@@ -872,6 +953,51 @@ mod test {
                 );
             }
         }
+    }
+
+    #[test]
+    fn mld_type_helpers() {
+        assert_eq!(
+            Icmpv6Type::Unknown {
+                type_u8: TYPE_MULTICAST_LISTENER_QUERY,
+                code_u8: 0,
+                bytes5to8: [0x12, 0x34, 0, 0],
+            },
+            Icmpv6Type::multicast_listener_query(0x1234)
+        );
+        assert_eq!(
+            Some(0x1234),
+            Icmpv6Type::multicast_listener_query(0x1234).mld_query_maximum_response_code()
+        );
+        assert_eq!(
+            Icmpv6Type::Unknown {
+                type_u8: TYPE_MULTICAST_LISTENER_REPORT,
+                code_u8: 0,
+                bytes5to8: [0; 4],
+            },
+            Icmpv6Type::multicast_listener_report_v1()
+        );
+        assert_eq!(
+            Icmpv6Type::Unknown {
+                type_u8: TYPE_MULTICAST_LISTENER_DONE,
+                code_u8: 0,
+                bytes5to8: [0; 4],
+            },
+            Icmpv6Type::multicast_listener_done_v1()
+        );
+        assert_eq!(
+            Icmpv6Type::Unknown {
+                type_u8: TYPE_MULTICAST_LISTENER_REPORT_V2,
+                code_u8: 0,
+                bytes5to8: [0, 0, 0x12, 0x34],
+            },
+            Icmpv6Type::multicast_listener_report_v2(0x1234)
+        );
+        assert_eq!(
+            Some(0x1234),
+            Icmpv6Type::multicast_listener_report_v2(0x1234)
+                .mldv2_report_number_of_multicast_address_records()
+        );
     }
 
     proptest! {
